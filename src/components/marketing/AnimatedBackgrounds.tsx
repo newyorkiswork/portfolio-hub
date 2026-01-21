@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-// Animated Stars Background
+// Seeded random number generator for deterministic values
+function seededRandom(seed: number): number {
+    const x = Math.sin(seed * 9999) * 10000;
+    return x - Math.floor(x);
+}
+
+// Animated Stars Background - uses useEffect so no hydration issue
 export function StarsBackground({ className }: { className?: string }) {
     const starsRef = useRef<HTMLDivElement>(null);
 
@@ -14,17 +20,18 @@ export function StarsBackground({ className }: { className?: string }) {
         const stars: HTMLDivElement[] = [];
         const container = starsRef.current;
 
-        // Create stars
+        // Create stars on client only
         for (let i = 0; i < 100; i++) {
             const star = document.createElement("div");
             star.className = "absolute rounded-full bg-white";
-            star.style.width = `${Math.random() * 3 + 1}px`;
-            star.style.height = star.style.width;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.opacity = `${Math.random() * 0.7 + 0.3}`;
-            star.style.animation = `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`;
-            star.style.animationDelay = `${Math.random() * 5}s`;
+            const size = seededRandom(i * 1.1) * 3 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${seededRandom(i * 2.2) * 100}%`;
+            star.style.top = `${seededRandom(i * 3.3) * 100}%`;
+            star.style.opacity = `${seededRandom(i * 4.4) * 0.7 + 0.3}`;
+            star.style.animation = `twinkle ${seededRandom(i * 5.5) * 3 + 2}s ease-in-out infinite`;
+            star.style.animationDelay = `${seededRandom(i * 6.6) * 5}s`;
             container.appendChild(star);
             stars.push(star);
         }
@@ -42,15 +49,17 @@ export function StarsBackground({ className }: { className?: string }) {
     );
 }
 
-// Floating Particles with 3D movement
+// Floating Particles - uses deterministic seeded values
 export function FloatingParticles({ className }: { className?: string }) {
+    // Use deterministic values based on index
     const particles = Array.from({ length: 50 }, (_, i) => ({
         id: i,
-        size: Math.random() * 6 + 2,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        duration: Math.random() * 20 + 15,
-        delay: Math.random() * 5,
+        size: seededRandom(i * 1.1) * 6 + 2,
+        x: seededRandom(i * 2.2) * 100,
+        y: seededRandom(i * 3.3) * 100,
+        duration: seededRandom(i * 4.4) * 20 + 15,
+        delay: seededRandom(i * 5.5) * 5,
+        xMove: seededRandom(i * 6.6) * 50 - 25,
     }));
 
     return (
@@ -68,7 +77,7 @@ export function FloatingParticles({ className }: { className?: string }) {
                     }}
                     animate={{
                         y: [0, -100, 0],
-                        x: [0, Math.random() * 50 - 25, 0],
+                        x: [0, particle.xMove, 0],
                         scale: [1, 1.5, 1],
                         opacity: [0.3, 0.8, 0.3],
                     }}
@@ -84,7 +93,7 @@ export function FloatingParticles({ className }: { className?: string }) {
     );
 }
 
-// Aurora/Gradient Waves
+// Aurora/Gradient Waves - no random values, no issue
 export function AuroraBackground({ className }: { className?: string }) {
     return (
         <div className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
@@ -124,7 +133,7 @@ export function AuroraBackground({ className }: { className?: string }) {
     );
 }
 
-// 3D Animated Grid
+// 3D Animated Grid - no random values, no issue
 export function AnimatedGrid({ className }: { className?: string }) {
     return (
         <div className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
@@ -154,7 +163,7 @@ export function AnimatedGrid({ className }: { className?: string }) {
     );
 }
 
-// Floating Orbs with blur
+// Floating Orbs - no random values, no issue
 export function FloatingOrbs({ className }: { className?: string }) {
     const orbs = [
         { color: "rgba(139, 92, 246, 0.4)", size: 400, x: "20%", y: "30%", duration: 20 },
@@ -193,13 +202,15 @@ export function FloatingOrbs({ className }: { className?: string }) {
     );
 }
 
-// Meteor Shower Effect
+// Meteor Shower Effect - uses deterministic seeded values
 export function MeteorShower({ className }: { className?: string }) {
+    // Use deterministic values based on index
     const meteors = Array.from({ length: 20 }, (_, i) => ({
         id: i,
-        delay: Math.random() * 10,
-        duration: Math.random() * 1 + 0.5,
-        left: Math.random() * 100,
+        delay: seededRandom(i * 1.1) * 10,
+        duration: seededRandom(i * 2.2) * 1 + 0.5,
+        left: seededRandom(i * 3.3) * 100,
+        repeatDelay: seededRandom(i * 4.4) * 15 + 5,
     }));
 
     return (
@@ -221,7 +232,7 @@ export function MeteorShower({ className }: { className?: string }) {
                         duration: meteor.duration,
                         delay: meteor.delay,
                         repeat: Infinity,
-                        repeatDelay: Math.random() * 15 + 5,
+                        repeatDelay: meteor.repeatDelay,
                         ease: "linear",
                     }}
                 />
